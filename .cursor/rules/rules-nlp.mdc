@@ -1,0 +1,114 @@
+---
+alwaysApply: true
+---
+
+Project summary (one-liner)
+
+NLP Risk Analyzer — ingest finance news + headlines, detect assets mentioned, score headlines for risk using NLP (NER + sentiment + urgency heuristics + volatility), expose a REST API, and show a live dashboard with watchlists and charts.
+
+Tech stack (recommended, consistent)
+
+Backend: Python + FastAPI
+
+NLP: spaCy (NER), Hugging Face Transformers (FinBERT or a financial sentiment model)
+
+DB: Postgres, ORM SQLAlchemy, migrations Alembic
+
+Worker / Scheduler: Celery + Redis (or APScheduler for lightweight)
+
+Frontend: Next.js (React) + Tailwind CSS (+ shadcn components optional)
+
+Charts: Recharts (or Chart.js)
+
+Containerization: Docker and docker-compose
+
+CI: GitHub Actions
+
+Deployment: Frontend → Vercel; Backend → Railway / Render; DB → Supabase / Neon
+
+Monitoring: Sentry (optional)
+
+Repo skeleton (single repo; monorepo)
+
+nlp-risk-analyzer/
+├─ backend/
+│  ├─ app/
+│  │  ├─ main.py
+│  │  ├─ api/
+│  │  ├─ db/
+│  │  ├─ models/
+│  │  ├─ nlp/
+│  │  ├─ workers/
+│  │  └─ utils/
+│  ├─ requirements.txt
+│  ├─ Dockerfile
+│  └─ alembic/
+├─ frontend/
+│  ├─ next.config.js
+│  ├─ package.json
+│  ├─ app/ (or pages/)
+│  └─ components/
+├─ infra/
+│  ├─ docker-compose.yml
+│  └─ README.md
+├─ tests/
+│  ├─ backend/
+│  └─ frontend/
+├─ .github/workflows/ci.yml
+├─ README.md
+└─ .env.example
+Project summary (one-liner)
+
+NLP Risk Analyzer — ingest finance news + headlines, detect assets mentioned, score headlines for risk using NLP (NER + sentiment + urgency heuristics + volatility), expose a REST API, and show a live dashboard with watchlists and charts.
+
+Tech stack (recommended, consistent)
+
+Backend: Python + FastAPI
+
+NLP: spaCy (NER), Hugging Face Transformers (FinBERT or a financial sentiment model)
+
+DB: Postgres, ORM SQLAlchemy, migrations Alembic
+
+Worker / Scheduler: Celery + Redis (or APScheduler for lightweight)
+
+Frontend: Next.js (React) + Tailwind CSS (+ shadcn components optional)
+
+Charts: Recharts (or Chart.js)
+
+Containerization: Docker and docker-compose
+
+CI: GitHub Actions
+
+Deployment: Frontend → Vercel; Backend → Railway / Render; DB → Supabase / Neon
+
+Monitoring: Sentry (optional)
+
+Repo skeleton (single repo; monorepo)
+
+nlp-risk-analyzer/
+├─ backend/
+│  ├─ app/
+│  │  ├─ main.py
+│  │  ├─ api/
+│  │  ├─ db/
+│  │  ├─ models/
+│  │  ├─ nlp/
+│  │  ├─ workers/
+│  │  └─ utils/
+│  ├─ requirements.txt
+│  ├─ Dockerfile
+│  └─ alembic/
+├─ frontend/
+│  ├─ next.config.js
+│  ├─ package.json
+│  ├─ app/ (or pages/)
+│  └─ components/
+├─ infra/
+│  ├─ docker-compose.yml
+│  └─ README.md
+├─ tests/
+│  ├─ backend/
+│  └─ frontend/
+├─ .github/workflows/ci.yml
+├─ README.md
+└─ .env.example
