@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 8px;
+}
+
+.container-page {
+  @apply mx-auto max-w-6xl px-4;
+}
