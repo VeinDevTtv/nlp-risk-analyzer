@@ -224,3 +224,51 @@ def save_headlines(db: Session, items: List[Dict[str, Any]]) -> int:
     return inserted
 
 
+# Convenience orchestration used by schedulers/workers
+def fetch_and_save(db: Session) -> int:
+    """Fetch headlines from configured sources and persist new items.
+
+    Returns number of inserted rows.
+    """
+    items: List[Dict[str, Any]] = []
+
+    # RSS feeds (lightweight, no auth)
+    rss_feeds = [
+        "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",  # WSJ Markets
+        "https://www.reutersagency.com/feed/?best-topics=business-finance&post_type=best",  # Reuters Biz
+        "https://www.investing.com/rss/news_25.rss",  # Investing.com Stocks
+    ]
+    try:
+        items.extend(fetch_from_rss(rss_feeds))
+    except Exception:
+        pass
+
+    # Optional: NewsAPI if NEWSAPI_KEY is provided
+    try:
+        import asyncio
+
+        news_items: List[Dict[str, Any]] = []
+        try:
+            news_items = asyncio.run(fetch_from_newsapi())
+        except RuntimeError:
+            # Fallback when already inside a running loop (rare for our CLI)
+            try:
+                loop = asyncio.get_event_loop()
+            except Exception:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            try:
+                news_items = loop.run_until_complete(fetch_from_newsapi())
+            except Exception:
+                news_items = []
+        except Exception:
+            news_items = []
+        items.extend(news_items)
+    except Exception:
+        pass
+
+    if not items:
+        return 0
+    return save_headlines(db, items)
+
+
