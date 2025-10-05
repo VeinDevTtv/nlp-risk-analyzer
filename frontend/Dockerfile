@@ -17,10 +17,11 @@ FROM node:20-alpine as runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=build /app/.next ./.next
+# Copy standalone server output
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
-COPY package.json ./package.json
 EXPOSE 3000
-CMD ["npx", "serve", ".next", "-l", "3000"]
+CMD ["node", "server.js"]
 
 
