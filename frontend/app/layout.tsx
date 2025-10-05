@@ -1,9 +1,12 @@
 import './globals.css'
-import type { Metadata } from 'next'
+// type import removed to avoid IDE/module resolution issues in some environments
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'NLP Risk Analyzer',
   description: 'Finance news risk dashboard',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({

@@ -34,6 +34,10 @@ app = FastAPI(title="NLP Risk Analyzer API")
 async def health_check():
     return {"status": "ok"}
 
+@app.get("/")
+async def root():
+    return {"message": "NLP Risk Analyzer API. Visit /docs for OpenAPI and /health for status."}
+
 
 # Mount versioned API routers
 app.include_router(api_v1_router)
