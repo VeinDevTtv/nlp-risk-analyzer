@@ -1,5 +1,8 @@
 # nlp-risk-analyzer
 
+[![CI](https://github.com/VeinDevTtv/nlp-risk-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/VeinDevTtv/nlp-risk-analyzer/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 An extensible, NLP-powered risk analysis toolkit and service. This repository is intended as a foundation for building pipelines that ingest unstructured text (e.g., policies, tickets, reports), identify risk signals, and produce structured outputs for dashboards or downstream automations.
 
 ## Features
@@ -67,3 +70,5 @@ See `.env.example` for suggested variables and comments. Replace or extend as ne
 ## License
 
 Choose and add a license file if you plan to share or open source this project.
+
+See also: `docs/portfolio.md` for a portfolio overview, demo script, and blog template.
