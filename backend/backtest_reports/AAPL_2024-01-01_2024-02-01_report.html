@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Backtest Report - AAPL</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .metric { margin: 4px 0; }
+    img { max-width: 100%; height: auto; }
+  </style>
+  </head>
+<body>
+  <h2>Backtest Report - AAPL</h2>
+  <div class="metric">Date range: <b>2024-01-01</b> to <b>2024-02-01</b></div>
+  <div class="metric">Observations (days): <b>11</b></div>
+  <div class="metric">Pearson corr (risk_t vs return_t+1): <b>0.3236482691571456</b></div>
+  <div class="metric">AUC (thresholded risk → negative return): <b>0.33333333333333337</b></div>
+  <div class="metric">Avg next-day return after top-decile risk: <b>0.004304953889623264</b></div>
+
+  <h3>Price and Risk</h3>
+  <img src="AAPL_2024-01-01_2024-02-01_price_risk.png" alt="Price and Risk" />
+
+  <h3>Risk vs Next-Day Return</h3>
+  <img src="AAPL_2024-01-01_2024-02-01_scatter.png" alt="Scatter" />
+
+  <h3>Metrics (CSV)</h3>
+  <p>See <code>AAPL_2024-01-01_2024-02-01_metrics.csv</code></p>
+</body>
+</html>

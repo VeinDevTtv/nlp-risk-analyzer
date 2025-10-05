@@ -1,0 +1,2 @@
+symbol,start,end,pearson_corr,auc_thresholded,avg_return_top_decile,n
+AAPL,2024-01-01,2024-02-01,0.3236482691571456,0.33333333333333337,0.004304953889623264,11
