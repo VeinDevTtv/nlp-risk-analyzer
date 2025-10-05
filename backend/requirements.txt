@@ -26,3 +26,6 @@ python-json-logger
 sentry-sdk
 prometheus-client
 flake8
+yfinance
+matplotlib
+scikit-learn
