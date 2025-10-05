@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime  # noqa: F401
 
 
 def main() -> None:

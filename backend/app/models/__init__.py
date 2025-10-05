@@ -1,4 +1,4 @@
-from app.db.base import Base  # re-export Base for Alembic's target_metadata
+from app.db.base import Base  # noqa: F401  (re-export Base for Alembic's target_metadata)
 
 # Ensure model modules are imported so that Alembic can discover them
 # via Base.metadata

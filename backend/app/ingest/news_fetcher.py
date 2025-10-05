@@ -92,7 +92,11 @@ def _normalize_rss_entry(entry: Any, fallback_source: Optional[str] = None) -> D
     }
 
 
-async def fetch_from_newsapi(query: str = "stocks OR markets", language: str = "en", page_size: int = 100) -> List[Dict[str, Any]]:
+async def fetch_from_newsapi(
+    query: str = "stocks OR markets",
+    language: str = "en",
+    page_size: int = 100,
+) -> List[Dict[str, Any]]:
     """Fetch headlines from NewsAPI using the NEWSAPI_KEY environment variable.
 
     Returns a list of normalized headline dicts: {text, published_at, source, url}.
