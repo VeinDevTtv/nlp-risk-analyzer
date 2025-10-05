@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Optional, Tuple
 
 import numpy as np

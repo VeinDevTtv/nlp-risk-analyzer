@@ -29,7 +29,7 @@ def _find_unprocessed_headline_ids(limit: int = 100) -> List[int]:
             select(Headline.id)
             .outerjoin(Mention, Mention.headline_id == Headline.id)
             .outerjoin(RiskScore, RiskScore.headline_id == Headline.id)
-            .where(Mention.id == None, RiskScore.id == None)  # type: ignore
+            .where(Mention.id.is_(None), RiskScore.id.is_(None))  # type: ignore
             .order_by(Headline.id.desc())
             .limit(limit)
         )

@@ -1,9 +1,7 @@
-import os
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from difflib import get_close_matches
 
-import numpy as np
 
 try:
     import spacy  # type: ignore
