@@ -9,7 +9,6 @@ NLP Risk Analyzer — ingest finance news + headlines, detect assets mentioned, 
 Tech stack (recommended, consistent)
 
 Backend: Python + FastAPI
-
 NLP: spaCy (NER), Hugging Face Transformers (FinBERT or a financial sentiment model)
 
 DB: Postgres, ORM SQLAlchemy, migrations Alembic
