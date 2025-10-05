@@ -27,7 +27,7 @@ jobs:
       - name: Run tests (pytest)
         env:
           DATABASE_URL: "sqlite+pysqlite:///:memory:"
-        run: pytest -q
+        run: pytest -q ../tests/backend
 
   frontend:
     runs-on: ubuntu-latest
