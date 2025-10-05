@@ -22,4 +22,7 @@ sqlalchemy-utils
 APScheduler
 passlib[bcrypt]
 python-jose[cryptography]
+python-json-logger
+sentry-sdk
+prometheus-client
 flake8
