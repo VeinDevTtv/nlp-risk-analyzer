@@ -4,6 +4,7 @@ sqlalchemy
 alembic
 psycopg2-binary
 pydantic
+email-validator
 aiohttp
 feedparser
 beautifulsoup4

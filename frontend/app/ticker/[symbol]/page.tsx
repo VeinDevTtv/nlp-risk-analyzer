@@ -46,7 +46,6 @@ export default function TickerPage({ params }: { params: { symbol: string } }) {
     <div className="flex min-h-screen flex-col">
       <Header />
       <Suspense fallback={<div className="container-page py-8">Loading...</div>}>
-        {/* @ts-expect-error Async Server Component */}
         <TickerContent symbol={symbol} />
       </Suspense>
       <Footer />
