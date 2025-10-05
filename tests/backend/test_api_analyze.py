@@ -2,7 +2,7 @@ import os
 import sys
 
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 
 
 # Ensure backend package is importable and DB is in-memory for tests
@@ -26,7 +26,8 @@ def setup_function(_: object) -> None:
 
 @pytest.mark.asyncio
 async def test_analyze_endpoint_basic_fields() -> None:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         payload = {"text": "BREAKING: AAPL plunges after earnings miss"}
         resp = await ac.post("/v1/analyze", json=payload)
         assert resp.status_code == 200
@@ -59,7 +60,8 @@ async def test_analyze_endpoint_basic_fields() -> None:
 
 @pytest.mark.asyncio
 async def test_analyze_endpoint_handles_empty_entities_gracefully() -> None:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         payload = {"text": "Market updates throughout the day"}
         resp = await ac.post("/v1/analyze", json=payload)
         assert resp.status_code == 200
