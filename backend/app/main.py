@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import api_v1_router
 from app.utils.logging import setup_logging
+from app.nlp import processor
 
 setup_logging()
 
@@ -83,3 +84,14 @@ try:
 except Exception:
     # If prometheus_client is not available, you can attach an exporter via infra (e.g., sidecar)
     pass
+
+
+# Optional NLP warmup on startup (set NLP_WARMUP=1 to enable)
+@app.on_event("startup")
+async def _startup_warm_nlp():  # type: ignore
+    if os.getenv("NLP_WARMUP", "0") == "1":
+        try:
+            processor.warm_nlp()
+        except Exception:
+            # Non-fatal: proceed even if warmup fails
+            pass

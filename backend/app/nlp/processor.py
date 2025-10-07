@@ -1,4 +1,6 @@
 from typing import Any, Dict, Iterable, List, Optional, Tuple
+import os
+import time
 
 from difflib import get_close_matches
 
@@ -24,6 +26,8 @@ from app.models.ticker import Ticker
 
 _nlp_model = None
 _sentiment_pipeline = None
+_ticker_index_cache: Dict[str, Any] = {}
+_ticker_index_cache_expiry: float = 0.0
 
 
 def _get_spacy_model():
@@ -69,6 +73,18 @@ def _get_sentiment_pipeline():
     return _sentiment_pipeline
 
 
+def warm_nlp() -> None:
+    """Eagerly load spaCy and sentiment model at process start to reduce first-request latency."""
+    try:
+        _ = _get_spacy_model()
+    except Exception:
+        pass
+    try:
+        _ = _get_sentiment_pipeline()
+    except Exception:
+        pass
+
+
 def detect_entities(text: str) -> List[str]:
     """Return candidate company names/tickers using spaCy NER.
 
@@ -105,55 +121,94 @@ def detect_entities(text: str) -> List[str]:
     return candidates
 
 
-def map_entities_to_tickers(db: Session, entities: Iterable[str]) -> List[Ticker]:
-    """Map entity strings to `Ticker` rows using exact/symbol match and fuzzy fallback.
+def _get_ticker_index(db: Session) -> Dict[str, Any]:
+    """Return a cached index for fast entity→ticker id mapping.
 
-    - Exact match on `Ticker.symbol`
-    - Case-insensitive exact match on `Ticker.name`
-    - Fuzzy match via difflib against all known names if no exact match
+    Cache stores symbol_upper→id, name_lower→id, and list of all names for fuzzy matching.
+    """
+    global _ticker_index_cache, _ticker_index_cache_expiry
+    ttl_s = float(os.getenv("TICKER_CACHE_TTL_SECONDS", "300"))
+    now = time.time()
+    if _ticker_index_cache and now < _ticker_index_cache_expiry:
+        return _ticker_index_cache
+
+    rows: List[Ticker] = list(db.execute(select(Ticker.id, Ticker.symbol, Ticker.name)).all())  # type: ignore
+    symbol_to_id: Dict[str, int] = {}
+    name_to_id: Dict[str, int] = {}
+    for r in rows:
+        # rows may be Row objects (id, symbol, name)
+        tid = int(r[0])
+        sym = r[1] or None
+        name = r[2] or None
+        if sym:
+            symbol_to_id[str(sym).upper()] = tid
+        if name:
+            name_to_id[str(name).lower()] = tid
+
+    index = {
+        "symbol_to_id": symbol_to_id,
+        "name_to_id": name_to_id,
+        "all_names_lower": list(name_to_id.keys()),
+    }
+    _ticker_index_cache = index
+    _ticker_index_cache_expiry = now + ttl_s
+    return index
+
+
+def map_entities_to_tickers(db: Session, entities: Iterable[str]) -> List[Ticker]:
+    """Map entity strings to `Ticker` rows using cached id index + one DB fetch.
+
+    Strategy:
+      1) Use cached symbol/name→id maps to resolve candidate ids (exact + fuzzy).
+      2) Fetch unique ids in a single SELECT to return ORM `Ticker` rows in this session.
     """
     cleaned = [e.strip() for e in entities if e and e.strip()]
     if not cleaned:
         return []
 
-    # Load all tickers once for matching
-    tickers: List[Ticker] = list(db.execute(select(Ticker)).scalars().all())
-    symbol_to_ticker = {t.symbol.upper(): t for t in tickers if t.symbol}
-    name_to_ticker_lower = {t.name.lower(): t for t in tickers if t.name}
-    all_names_lower = list(name_to_ticker_lower.keys())
+    idx = _get_ticker_index(db)
+    symbol_to_id = idx["symbol_to_id"]
+    name_to_id = idx["name_to_id"]
+    all_names_lower = idx["all_names_lower"]
 
-    mapped: List[Ticker] = []
+    matched_ids: List[int] = []
     added_ids: set[int] = set()
 
     for e in cleaned:
-        # symbol exact
         sym = e.upper()
-        if sym in symbol_to_ticker:
-            t = symbol_to_ticker[sym]
-            if t.id not in added_ids:
-                mapped.append(t)
-                added_ids.add(t.id)
+        if sym in symbol_to_id:
+            tid = symbol_to_id[sym]
+            if tid not in added_ids:
+                matched_ids.append(tid)
+                added_ids.add(tid)
             continue
 
-        # name exact (case insensitive)
         lower = e.lower()
-        if lower in name_to_ticker_lower:
-            t = name_to_ticker_lower[lower]
-            if t.id not in added_ids:
-                mapped.append(t)
-                added_ids.add(t.id)
+        if lower in name_to_id:
+            tid = name_to_id[lower]
+            if tid not in added_ids:
+                matched_ids.append(tid)
+                added_ids.add(tid)
             continue
 
-        # fuzzy fallback against names only
         if all_names_lower:
             matches = get_close_matches(lower, all_names_lower, n=1, cutoff=0.85)
             if matches:
-                t = name_to_ticker_lower[matches[0]]
-                if t.id not in added_ids:
-                    mapped.append(t)
-                    added_ids.add(t.id)
+                tid = name_to_id[matches[0]]
+                if tid not in added_ids:
+                    matched_ids.append(tid)
+                    added_ids.add(tid)
 
-    return mapped
+    if not matched_ids:
+        return []
+
+    tickers: List[Ticker] = list(
+        db.execute(select(Ticker).where(Ticker.id.in_(matched_ids))).scalars().all()
+    )
+    # Preserve original matched id order
+    id_to_ticker = {t.id: t for t in tickers}
+    ordered = [id_to_ticker[i] for i in matched_ids if i in id_to_ticker]
+    return ordered
 
 
 def sentiment_score(text: str) -> Optional[float]:

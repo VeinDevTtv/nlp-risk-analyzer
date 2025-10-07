@@ -17,7 +17,7 @@ export async function fetcher(path: string) {
 export async function getTickerRisk(symbol: string) {
   if (!symbol) return null
   const base = getApiBase()
-  const res = await fetch(`${base}/v1/risk/${encodeURIComponent(symbol)}`, { cache: 'no-store' })
+  const res = await fetch(`${base}/v1/risk/${encodeURIComponent(symbol)}`, { next: { revalidate: 60 } })
   if (!res.ok) {
     return { risk: { risk_percent: 0 }, timeseries: [], headlines: [] }
   }
