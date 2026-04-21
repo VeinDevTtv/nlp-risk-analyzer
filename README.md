@@ -9,6 +9,9 @@ An extensible, NLP-powered risk analysis toolkit and service. This repository is
 
 - Ingest and preprocess unstructured text
 - Apply configurable NLP risk heuristics and model-based scoring
+- **New**: Seamlessly toggle between local HuggingFace transformers and cloud-based OpenAI LLMs via configuring `NLP_MODE` in `.env`.
+- **New**: `pgvector` supported entity mapping for fuzzy company/ticker matching. See [pgvector guide](/docs/pgvector_guide.md).
+- **New**: Frontend configured with premium Glassmorphism UI tokens, ready for React integrations (`framer-motion`, `@tanstack/react-query`).
 - Emit structured findings for storage, alerts, or workflows
 - Designed to support both local and hosted model backends
 

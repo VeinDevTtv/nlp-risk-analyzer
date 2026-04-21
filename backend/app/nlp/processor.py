@@ -15,6 +15,11 @@ try:
 except Exception:  # pragma: no cover - optional in tests
     pipeline = None  # type: ignore
 
+try:
+    import openai
+except Exception:
+    openai = None
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -214,10 +219,26 @@ def map_entities_to_tickers(db: Session, entities: Iterable[str]) -> List[Ticker
 def sentiment_score(text: str) -> Optional[float]:
     """Return sentiment in [-1, 1]. If model unavailable, return 0.
 
-    For models that return labels like POSITIVE/NEGATIVE with scores in [0,1], map to [-1,1].
+    If NLP_MODE=cloud, uses OpenAI API. Otherwise, uses local transformers pipeline.
     """
     if not text:
         return 0.0
+
+    if os.getenv("NLP_MODE", "local") == "cloud" and openai is not None:
+        try:
+            client = openai.OpenAI()
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Analyze the financial sentiment of the headline and return a float between -1.0 (very negative) and 1.0 (very positive). Return ONLY the float number."},
+                    {"role": "user", "content": text}
+                ],
+                temperature=0.0
+            )
+            val = float(resp.choices[0].message.content.strip())
+            return max(-1.0, min(1.0, val))
+        except Exception:
+            pass # fallback to local if cloud fails or returns bad format
 
     pipe = _get_sentiment_pipeline()
     if pipe is None:
@@ -243,12 +264,28 @@ def sentiment_score(text: str) -> Optional[float]:
 
 
 def urgency_score(text: str) -> float:
-    """Compute urgency score based on weighted keyword matches in text.
+    """Compute urgency score based on weighted keyword matches in text, or via LLM in cloud mode.
 
     Score in [0, 1].
     """
     if not text:
         return 0.0
+
+    if os.getenv("NLP_MODE", "local") == "cloud" and openai is not None:
+        try:
+            client = openai.OpenAI()
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Analyze the financial urgency/impact of the headline and return a float between 0.0 (no urgency) and 1.0 (extreme urgency/breaking news). Return ONLY the float number."},
+                    {"role": "user", "content": text}
+                ],
+                temperature=0.0
+            )
+            val = float(resp.choices[0].message.content.strip())
+            return max(0.0, min(1.0, val))
+        except Exception:
+            pass
 
     keywords: List[Tuple[str, float]] = [
         ("breaking", 1.0),

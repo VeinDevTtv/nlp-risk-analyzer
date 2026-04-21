@@ -20,7 +20,22 @@ const config: Config = {
           800: '#1a3d8f',
           900: '#193772',
         },
+        glass: {
+          border: 'rgba(255, 255, 255, 0.1)',
+          fill: 'rgba(17, 25, 40, 0.75)',
+          highlight: 'rgba(255, 255, 255, 0.05)',
+        }
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'glass-gradient': 'linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
+      },
+      backdropBlur: {
+        xs: '2px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+      }
     },
   },
   plugins: [],
