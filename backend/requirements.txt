@@ -30,3 +30,6 @@ flake8
 yfinance
 matplotlib
 scikit-learn
+openai
+pgvector
+opentelemetry-api
